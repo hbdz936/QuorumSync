@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 
-const SERVER_URL = 'http://localhost:4000';
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:4000';
 
 let socket: Socket | null = null;
 
@@ -39,11 +39,6 @@ export function clearLastSession(): void {
   sessionStorage.removeItem(STORAGE_KEY);
 }
 
-/**
- * Logs the current browser tab out of its role entirely — clears
- * local identity only. Server-side votes are untouched; the voter's
- * scores remain exactly where they were for everyone else.
- */
 export function logout(): void {
   clearLastSession();
   if (socket) {
