@@ -9,7 +9,7 @@
 [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?style=flat-square&logo=socket.io&logoColor=white)](https://socket.io/)
 [![Tests](https://img.shields.io/badge/CRDT%20convergence-proven%20by%20test-success?style=flat-square)](#-the-proof-that-actually-matters)
 
-**[🔗 Live demo](https://quorumsync.netlify.app/)** · **[📐 Architecture](./docs/ARCHITECTURE.md)** · **[💻 Source](https://github.com/hbdz936/QuorumSync)**
+**[🔗 Live demo](https://quorumsync.netlify.app/)**
 
 **Two judges. Same item. Same instant. Conflicting scores.**
 This is the project that answers what happens next — correctly, provably, every time.
