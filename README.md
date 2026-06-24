@@ -1,46 +1,80 @@
-# QuorumSync
+<div align="center">
 
-A real-time, conflict-resolved voting and judging engine — built to answer one specific question properly: **what happens when two people change their vote at the same instant?**
+# ⚡ QuorumSync
 
-Most polling tools sidestep this by locking submissions or just trusting whichever write reaches the database last. QuorumSync doesn't sidestep it. It implements an actual CRDT (conflict-free replicated data type) so that concurrent, conflicting edits from independent clients converge to the same correct result on every device — proven, not assumed, with tests that simulate out-of-order message delivery and check that every permutation lands on the identical value.
+### Real-time, conflict-resolved voting — built on an actual CRDT, not a database lock.
 
-It's built for hackathon judging, hiring panels, grant review committees — anywhere a group needs to score something together, live, with more than one person able to act at the same time.
+[![TypeScript](https://img.shields.io/badge/TypeScript-100%25-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-client-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?style=flat-square&logo=socket.io&logoColor=white)](https://socket.io/)
+[![Tests](https://img.shields.io/badge/CRDT%20convergence-proven%20by%20test-success?style=flat-square)](#-the-proof-that-actually-matters)
 
-## What it actually does
+**Two judges. Same item. Same instant. Conflicting scores.**
+This is the project that answers what happens next — correctly, provably, every time.
 
-- **Multi-criteria, weighted scoring.** Each item being judged is scored across several criteria (e.g. Innovation, Feasibility), each independently weighted. Each judge also carries their own weight, so a lead judge's score can count more than a junior judge's — both layers of weighting compose into one live, normalized score per item.
-- **Weighted quorum tracking.** A decision isn't "final" just because someone voted — it's final once enough *weighted* participation has accumulated. The threshold is configurable per session (e.g. 60% of total judge weight).
-- **Real-time sync across every connected client.** Every vote, lock, and finalize event broadcasts instantly to everyone in the session over Socket.io. Open the same session in three browser tabs and watch all three update in lockstep.
-- **Bias-resistant scoring flow.** A judge cannot see live standings while still able to change their own score — that combination is a strategic-voting risk, not a UI nicety. Standings stay hidden until a judge locks their own score in, and locking is permanent: no quiet post-hoc adjustments after seeing how the room is leaning.
-- **An append-only audit trail**, separate from the live CRDT register. The register always shows the current converged value; the log remembers every value anyone ever submitted, with the logical timestamp it carried. Nothing is silently overwritten.
+</div>
 
-## How the conflict resolution actually works
+---
 
-This is the part most polling tools don't have, so it's worth being specific about it.
+## The problem nobody else solves properly
 
-Every vote carries a **Lamport timestamp** — a logical clock, not a wall-clock value. Two laptops with unsynchronized system clocks can't be trusted to agree on "which vote came first" using `Date.now()`; Lamport timestamps solve this with a counter that only ever increases, synchronized through the messages themselves rather than through wall-clock agreement.
+Every polling tool you've used handles concurrent votes the same lazy way: **whoever's write hits the database last, wins.** No memory of the conflict. No guarantee that two judges' phones, with two unsynced clocks, agree on what "last" even means.
 
-Each vote slot (one judge, one item, one criterion) is backed by a **last-writer-wins register**. Applying the same set of updates in *any* order, on *any* replica, converges to the same final state — that's the actual CRDT property, and it's what removes the need for a central lock to decide whose vote "wins." The repo's test suite includes a test that runs every permutation of three concurrent updates through the register and asserts they all land on the same value — that test is the real proof, not a diagram.
+QuorumSync doesn't do that. It's a **last-writer-wins CRDT**, backed by **Lamport logical clocks** instead of wall-clock time — meaning every replica, on every device, converges to the *exact same value* no matter what order the network delivers the votes in. Not approximately. Not usually. Provably — there's a test that runs every possible delivery order through the engine and asserts they all land identically. [See it for yourself ↓](#-the-proof-that-actually-matters)
 
-Separately, an append-only `VoteLog` keeps every submitted value, in order, regardless of which one "won" the register. Convergence (the CRDT) and accountability (the log) are deliberately two different data structures — collapsing them into one would lose either the live performance or the audit trail.
+## ✨ What it does
 
-## System design
+| | |
+|---|---|
+| 🎯 **Weighted multi-criteria scoring** | Innovation, feasibility, whatever — each criterion weighted, each judge weighted, composed live into one normalized score |
+| 🔒 **Quorum, not just majority** | A decision locks only once enough *weighted* participation lands — configurable per session |
+| ⚡ **Live everywhere, instantly** | Every vote, lock, and finalize event hits every open tab over Socket.io — no refresh, ever |
+| 🛡️ **Bias-resistant by construction** | Judges can't see standings *while* still able to change their score — that combo is a strategy exploit, not a feature. Locking is permanent. |
+| 📜 **Full audit trail** | Every submitted value is logged forever, separate from the "winning" value — nothing is silently overwritten |
 
-Three packages, each with one job:
+## 🧠 The proof that actually matters
 
-- **`@quorumsync/core`** — the engine. The CRDT register, the Lamport clock, the weighted scorer, the quorum tracker. Pure TypeScript, no framework, no network, no database — fully unit-testable on its own, which is exactly how it was built and verified before anything else existed.
-- **`@quorumsync/server`** — Express + Socket.io. Owns session lifecycle and decides, per connected socket, what that specific voter is allowed to see. Calls into `core` for every actual scoring decision; contains no scoring logic itself.
-- **`@quorumsync/client`** — React. An admin screen to configure a session (judges, weighted criteria, items, quorum threshold), and a live voting screen with an animated quorum meter that visibly fills toward a checkpoint and locks in real time as weighted votes land.
+```
+Three judges submit conflicting scores, in every possible delivery order.
+Every single permutation converges to the identical final value.
+```
 
-Full diagram and design rationale:
-![QuorumSync Architecture](./docs/architecture.svg)
+That's not a diagram claim — it's `concurrent-votes.test.ts`, a real Jest suite that simulates out-of-order network delivery and asserts convergence. This is the difference between a CRDT that *looks* right and one that *is* right.
 
-## What was genuinely hard about this
+## 🏗️ How it's built
 
-- **Deciding what "fair" means under concurrency.** The naive options — lock on first vote, or never lock at all — both fail for real reasons: the first punishes honest mistakes, the second lets a judge watch the leaderboard and adjust their score to favor an outcome. The actual fix isn't a locking rule, it's an information rule: hide aggregate standings from a judge until *their own* score is permanently locked in. That single design decision is doing more work than any line of the CRDT code.
-- **Visibility had to be a server-side decision, not a client-side hide.** Early versions just hid the leaderboard in the UI while still letting the client receive full data — which doesn't stop anything, it just looks like it does. The fix moved that decision into the server's broadcast logic, so a judge who hasn't locked in literally never receives the real numbers over the wire.
-- **Proving convergence, not just asserting it.** It would have been easy to write a test that checks one ordering of events and call it done. The test that matters runs every permutation of delivery order through the same register and asserts they all converge — that's the difference between "looks right" and "is right" for a CRDT.
+```
+@quorumsync/core     →  the engine. CRDT, Lamport clock, weighted scorer, quorum tracker.
+                         zero dependencies. fully unit-tested in isolation.
 
-## Stack
+@quorumsync/server   →  Express + Socket.io. Decides, per connected socket,
+                         exactly what that voter is allowed to see — right now.
 
-TypeScript end to end. React (client) · Express + Socket.io (server) · Jest + ts-jest (testing core's CRDT logic in isolation).
+@quorumsync/client   →  React. Admin setup, live voting screen, an animated
+                         quorum meter that visibly races toward lock.
+```
+
+Three packages, one rule: **if `core` is correct, the system is correct.** Everything else is plumbing.
+
+📐 Full architecture diagram + design rationale → 
+[![QuorumSync Architecture](./docs/architecture.svg)](./docs/architecture.svg)
+
+## 🔥 The hardest decision in this whole project
+
+Not the CRDT. The CRDT is textbook, once you know to reach for it.
+
+The hard part was deciding **what "fair" means when people can edit concurrently.** Lock on first vote → punishes honest mistakes. Never lock → lets a judge watch the leaderboard and quietly adjust to favor an outcome. The actual fix wasn't a locking rule — it was an **information rule**: hide aggregate standings from a judge until *their own* score is permanently locked. One sentence of product reasoning did more work than any line of conflict-resolution code.
+
+And it had to be enforced **server-side, not in the UI** — an earlier version just hid the leaderboard visually while still shipping the real numbers over the wire, which is security theater, not security. The fix moved the decision into the server's broadcast logic: a judge who hasn't locked in literally never receives the real data.
+
+## 🛠️ Stack
+
+TypeScript end to end · React · Express · Socket.io · Jest
+
+---
+
+<div align="center">
+
+*Built to prove a point: real-time collaboration doesn't have to mean "good enough most of the time."*
+
+</div>

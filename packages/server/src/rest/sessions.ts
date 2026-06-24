@@ -7,6 +7,7 @@ export const sessionsRouter = Router();
 
 interface CreateSessionBody {
   title: string;
+  creatorId: string;
   criteria: Criteria[];
   voters: Voter[];
   quorumRule: QuorumRule;
@@ -16,8 +17,10 @@ interface CreateSessionBody {
 sessionsRouter.post('/', (req: Request, res: Response) => {
   const body = req.body as CreateSessionBody;
 
-  if (!body.title || !body.criteria?.length || !body.voters?.length) {
-    return res.status(400).json({ error: 'title, criteria, and voters are required' });
+  if (!body.title || !body.creatorId || !body.criteria?.length || !body.voters?.length || !body.itemLabels?.length) {
+    return res.status(400).json({
+      error: 'title, creatorId, criteria, voters, and itemLabels are all required',
+    });
   }
 
   const sessionId = uuidv4();
@@ -26,6 +29,7 @@ sessionsRouter.post('/', (req: Request, res: Response) => {
   const room = roomManager.createRoom({
     sessionId,
     title: body.title,
+    creatorId: body.creatorId,
     criteria: body.criteria,
     voters: body.voters,
     quorumRule: body.quorumRule,
