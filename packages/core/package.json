@@ -1,0 +1,19 @@
+{
+  "name": "@quorumsync/core",
+  "version": "1.0.0",
+  "description": "CRDT and weighted-quorum aggregation engine for QuorumSync",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.0.0",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
+    "typescript": "^6.0.3"
+  }
+}

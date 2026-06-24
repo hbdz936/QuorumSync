@@ -1,0 +1,14 @@
+{
+  "name": "quorumsync",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace=@quorumsync/server",
+    "dev:client": "npm run dev --workspace=@quorumsync/client",
+    "test:core": "npm test --workspace=@quorumsync/core",
+    "build:core": "npm run build --workspace=@quorumsync/core"
+  }
+}

@@ -1,0 +1,121 @@
+<svg viewBox="0 0 1000 760" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <rect x="0" y="0" width="1000" height="760" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="500" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#000000">QuorumSync — System Architecture</text>
+
+  <!-- ===================== CLIENT LAYER ===================== -->
+  <rect x="40" y="80" width="280" height="200" rx="10" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="180" y="108" text-anchor="middle" font-size="15" font-weight="700" fill="#000000">CLIENT (React)</text>
+
+  <rect x="60" y="125" width="240" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="180" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">AdminSetup — create session</text>
+
+  <rect x="60" y="175" width="240" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="180" y="200" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">VoteSlider + QuorumMeter</text>
+
+  <rect x="60" y="225" width="240" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="180" y="250" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">Leaderboard (scoped per voter)</text>
+
+  <!-- ===================== TRANSPORT ===================== -->
+  <rect x="380" y="80" width="240" height="200" rx="10" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="500" y="108" text-anchor="middle" font-size="15" font-weight="700" fill="#000000">SERVER (Express)</text>
+
+  <rect x="400" y="125" width="200" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="500" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">Socket.io — live events</text>
+
+  <rect x="400" y="175" width="200" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="500" y="200" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">REST — session setup</text>
+
+  <rect x="400" y="225" width="200" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="500" y="250" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">SessionRoom (per session)</text>
+
+  <!-- ===================== CORE ENGINE ===================== -->
+  <rect x="680" y="80" width="280" height="200" rx="10" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="820" y="108" text-anchor="middle" font-size="15" font-weight="700" fill="#000000">@quorumsync/core</text>
+
+  <rect x="700" y="125" width="240" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="820" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">LamportClock — logical time</text>
+
+  <rect x="700" y="175" width="240" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="820" y="200" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">VoteRegister (LWW-CRDT)</text>
+
+  <rect x="700" y="225" width="240" height="40" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <text x="820" y="250" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">WeightedScorer + QuorumTracker</text>
+
+  <!-- Arrows: client <-> server -->
+  <line x1="320" y1="180" x2="380" y2="180" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="380" y1="195" x2="320" y2="195" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="350" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">events</text>
+
+  <!-- Arrows: server <-> core -->
+  <line x1="620" y1="180" x2="680" y2="180" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="680" y1="195" x2="620" y2="195" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="650" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">calls</text>
+
+  <!-- ===================== VOTE LOG (below core) ===================== -->
+  <rect x="700" y="300" width="240" height="50" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2.5"/>
+  <text x="820" y="322" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">VoteLog</text>
+  <text x="820" y="340" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">append-only audit trail</text>
+  <line x1="820" y1="280" x2="820" y2="300" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- ===================== FLOW LABEL ===================== -->
+  <text x="500" y="400" text-anchor="middle" font-size="16" font-weight="700" fill="#000000">How a vote actually resolves</text>
+
+  <!-- Step boxes -->
+  <rect x="40" y="430" width="190" height="80" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="135" y="455" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">1. Judge moves slider</text>
+  <text x="135" y="475" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">client stamps a Lamport</text>
+  <text x="135" y="490" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">timestamp locally</text>
+
+  <line x1="230" y1="470" x2="280" y2="470" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="280" y="430" width="190" height="80" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="375" y="455" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">2. Server validates</text>
+  <text x="375" y="475" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">voter, criteria, lock</text>
+  <text x="375" y="490" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">state all checked</text>
+
+  <line x1="470" y1="470" x2="520" y2="470" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="520" y="430" width="190" height="80" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="615" y="455" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">3. CRDT merge</text>
+  <text x="615" y="475" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">later timestamp wins,</text>
+  <text x="615" y="490" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">no locking required</text>
+
+  <line x1="710" y1="470" x2="760" y2="470" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="760" y="430" width="190" height="80" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="855" y="455" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">4. Scoped broadcast</text>
+  <text x="855" y="475" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">each voter gets only</text>
+  <text x="855" y="490" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">what they're allowed to see</text>
+
+  <!-- ===================== VISIBILITY RULES ===================== -->
+  <text x="500" y="555" text-anchor="middle" font-size="16" font-weight="700" fill="#000000">Who sees what, and when</text>
+
+  <rect x="60" y="580" width="270" height="100" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="195" y="605" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">Judge, before locking</text>
+  <text x="195" y="628" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">sees only their own slider</text>
+  <text x="195" y="648" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">standings hidden — no way</text>
+  <text x="195" y="665" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">to vote strategically</text>
+
+  <rect x="365" y="580" width="270" height="100" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="500" y="605" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">Judge, after locking</text>
+  <text x="500" y="628" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">score is permanent —</text>
+  <text x="500" y="648" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">slider disabled server-side</text>
+  <text x="500" y="665" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">standings now visible</text>
+
+  <rect x="670" y="580" width="270" height="100" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+  <text x="805" y="605" text-anchor="middle" font-size="13" font-weight="700" fill="#000000">Admin, throughout</text>
+  <text x="805" y="628" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">always sees full standings</text>
+  <text x="805" y="648" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">only the admin can finalize</text>
+  <text x="805" y="665" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">an item once quorum is met</text>
+
+  <!-- ===================== FOOTER NOTE ===================== -->
+  <text x="500" y="725" text-anchor="middle" font-size="12" font-weight="700" fill="#000000">Monorepo: @quorumsync/core (engine) · @quorumsync/server (transport) · @quorumsync/client (UI)</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#000000"/>
+    </marker>
+  </defs>
+</svg>
